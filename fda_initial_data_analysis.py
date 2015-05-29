@@ -72,27 +72,32 @@ def textblob_features():
     df['subjectivity'] = df.warnings.apply(lambda x: TextBlob(x).subjectivity)
     df['length_of_warning'] = df.warnings.apply(lambda x: len(TextBlob(x).words))
 
+def other_data_cleansing():
+    df['date'] = pd.to_datetime(df.effective_time)
+
+# running the cleaning
 clean_openfda_column()
 textblob_features()
+
 ### NLTK STUFF ###
-# from __future__ import division
-# import nltk
-# from nltk import word_tokenize
+from __future__ import division
+import nltk
+from nltk import word_tokenize
 
-# df.warnings = df.warnings.apply(lambda x: x.lower())
-# df.tokens = df.warnings.apply(lambda x: word_tokenize(x))
-# porter = nltk.PorterStemmer()
-# df.stemmed = df.tokens.apply(lambda x: [porter.stem(t) for t in x])
+df.warnings = df.warnings.apply(lambda x: x.lower())
+df.tokens = df.warnings.apply(lambda x: word_tokenize(x))
+porter = nltk.PorterStemmer()
+df.stemmed = df.tokens.apply(lambda x: [porter.stem(t) for t in x])
 
-# from sklearn.feature_extraction.text import CountVectorizer
-# vectorizer = CountVectorizer(min_df=1, stop_words='english')
-# matrix = vectorizer.fit_transform(df.warnings)
+from sklearn.feature_extraction.text import CountVectorizer
+vectorizer = CountVectorizer(min_df=1, stop_words='english')
+matrix = vectorizer.fit_transform(df.warnings)
 
 
 
-# # initial plotting
-# df.length_of_warning.hist(bins=50)
-# plt.show()
+# initial plotting
+df.length_of_warning.hist(bins=50)
+plt.show()
 
 ### WORKING WITH ADVERSE EVENTS ###
 
@@ -108,3 +113,9 @@ data = []
 for i in documents:
     for j in i:
         data.append(j)
+
+# want to take a subset so I can start clustering
+df_subset1 = df[['product_type', 'length_of_warning', 'polarity', 'subjectivity']]
+print df_subset1.head(3)
+
+
