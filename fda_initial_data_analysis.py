@@ -102,17 +102,17 @@ textblob_features()
 ### WORKING WITH ADVERSE EVENTS ###
 
 # getting data out of MongoDB
-# events = client.drugs.adverse_events
-# cursor = events.find({})
+events = client.drugs.adverse_events
+cursor = events.find({})
 
-# documents = []
-# for i in cursor:
-#     documents.append(i['results'])
+documents = []
+for i in cursor:
+    documents.append(i['results'])
 
-# data = []
-# for i in documents:
-#     for j in i:
-#         data.append(j)
+data = []
+for i in documents:
+    for j in i:
+        data.append(j)
 
 # want to take a subset so I can start clustering
 df_subset1 = df[['product_type', 'length_of_warning', 'polarity', 'subjectivity']]

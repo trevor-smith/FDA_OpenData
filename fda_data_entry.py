@@ -9,23 +9,24 @@ import pprint
 from pymongo import MongoClient
 import time
 
-#### EXTRACTING DRUG LABELS DATA ###
-# client = MongoClient()
-# labels = client.drugs.drug_labeling
+### EXTRACTING DRUG LABELS DATA ###
+# there's around 70k drug labels
+client = MongoClient()
+labels = client.drugs.drug_labeling
 
 
-# for i in range(0,1000):
-#     j = int(i*100)
-#     if i % 240 == 0:
-#         time.sleep(30)
-#         print "finished iteration: " + str(i)
-#     response = requests.get("https://api.fda.gov/drug/label.json?api_key=h84pEssgNdT4A19c3CiHp1cKK3Gh3Aajc6GNtIq9&search=&limit=100&skip=" + str(i) + "\"")
-#     labels.insert(response.json())
-    # loop to not run over the 240 requests per minute threshold
+for i in range(0,1000):
+    j = int(i*100)
+    if i % 240 == 0:
+        time.sleep(30)
+        print "on iteration: " + str(i)
+    response = requests.get("https://api.fda.gov/drug/label.json?api_key=h84pEssgNdT4A19c3CiHp1cKK3Gh3Aajc6GNtIq9&search=&limit=100&skip=" + str(i) + "\"")
+    labels.insert(response.json())
+    loop to not run over the 240 requests per minute threshold
 
-# cleaning up the bad data in mongodb
-# labels.remove( {'error': {u'message': u'Invalid skip parameter value.', u'code': u'BAD_REQUEST'}} )
-# labels.remove( {'error': {u'message': u'No matches found!', u'code': u'NOT_FOUND'}} )
+cleaning up the bad data in mongodb
+labels.remove( {'error': {u'message': u'Invalid skip parameter value.', u'code': u'BAD_REQUEST'}} )
+labels.remove( {'error': {u'message': u'No matches found!', u'code': u'NOT_FOUND'}} )
 
 ### EXTRACTING ADVERSE EVENTS DATA ###
 # there's over 4mm events from 2004
@@ -38,6 +39,22 @@ for i in range(0,45870):
     j = int(i*100)
     if i % 240 == 0:
         time.sleep(59)
-        print "finished iteration: " + str(i)
+        print "on iteration: " + str(i)
     response = requests.get("https://api.fda.gov/drug/event.json?api_key=h84pEssgNdT4A19c3CiHp1cKK3Gh3Aajc6GNtIq9&search=&limit=100&skip=" + str(i) + "\"")
     events.insert(response.json())
+
+## EXTRACTING RECALLS DATA ###
+# there's around 4,000 events
+
+client = MongoClient()
+enforcement = client.drugs.enforcement
+
+print "starting the enforecement extraction..."
+for i in range(0,38):
+    j = int(i*100)
+    response = requests.get("https://api.fda.gov/drug/enforcement.json?api_key=h84pEssgNdT4A19c3CiHp1cKK3Gh3Aajc6GNtIq9&search=&limit=100&skip=" + str(i) + "\"")
+    enforcement.insert(response.json())
+    print "finished iteration: " + str(i)
+print "all done!"
+
+
