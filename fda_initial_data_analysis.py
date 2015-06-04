@@ -152,3 +152,7 @@ print('Estimated number of clusters: %d' % n_clusters_)
 num_clusters=8
 km = KMeans(init='random', max_iter=100, n_init=1, verbose=1, n_jobs=-1, n_clusters=num_clusters)
 km.fit(X)
+
+
+
+
