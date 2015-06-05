@@ -1,4 +1,4 @@
-##### THIS FILE IS FOR EXPLORATORY ANALYSIS #####
+##### THIS FILE IS FOR DATA CLEANING #####
 
 ### IMPORTS ###
 from pymongo import MongoClient
