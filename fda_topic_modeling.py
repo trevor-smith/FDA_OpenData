@@ -55,15 +55,16 @@ small_sample = all_samples[:10000]
 
 # ok, now let's loop through and find the optimal num of clusters
 start_time = time.time()
-max_clusters = 20
+max_clusters = 50
 inertia_curve = []
+silhouette_curve = []
 colors = []
 colours = []
 
 for num in range (max_clusters):
-    # color = np.random.rand(3,)
-    # colours.append(color)
-    # colors = list(colours)
+    color = np.random.rand(3,)
+    colours.append(color)
+    colors = list(colours)
 
 for cluster in range(max_clusters)[2:]:
     num_clusters = cluster
@@ -74,7 +75,8 @@ for cluster in range(max_clusters)[2:]:
     inertia_curve.append(round(inertia,4))
     cluster_range = range(cluster)[1:]
     labels = km.labels_
-    print "Silhouette score:", metrics.silhouette_score(df, labels, metric='euclidean')
+    silhouette_curve.append(metrics.silhouette_curve(small_sample, labels, metric='euclidean'))
+    print "Silhouette score:", silhouette_curve[:-1]
     print "Number of clusters:", cluster
     print Counter(clusters)
 
@@ -83,4 +85,40 @@ plt.plot(cluster_range, inertia_curve, label = 'Inertia Curve')
 plt.legend()
 plt.show()
 
+plt.plot(cluster_range, silhouette_curve, label = 'Silhouette Curve')
+plt.legend()
+plt.show()
+
+# now choose optimal clusters and then plot via pca
+num_clusters = 17
+km = MiniBatchKMeans(init='k-means++', n_clusters=num_clusters)
+km.fit_predict(small_sample)
+clusters = km.labels_.tolist()
+inertia = km.inertia_
+inertia_curve.append(round(inertia,4))
+cluster_range = range(cluster)[1:]
+labels = km.labels_
+
+mlab_pca = mlabPCA(small_sample)
+
+clusters_array = np.array(clusters)
+clusters_array_2 = clusters_array.reshape(10000,1)
+d = np.concatenate((mlab_pca.Y, clusters_array_2), axis=1)
+
+fig = plt.figure(figsize=(15,5))
+ax1 = fig.add_subplot(131, projection='3d')  # row-col-num
+for num in range(cluster):
+    plt.plot(d[d[:,25]==num][:,0],d[d[:,25]==num][:,1],d[d[:,25]==num][:,2],'o', markersize=7, color=colors[num], alpha=0.5)#, label = labels)
+    # plt.zlabel('z_values')
+plt.title('PCA and k-means clustering, n=10,000 drugs')
+plt.xlim([-4,4])
+plt.ylim([-4,4])
+ax2 = fig.add_subplot(132)  # row-col-num
+for num in range(cluster):
+    plt.plot(d[d[:,25]==num][:,0],d[d[:,25]==num][:,1],'o', markersize=7, color=colors[num], alpha=0.5)#, label = labels)
+plt.xlabel('x_values')
+plt.ylabel('y_values')
+plt.title('PCA and k-means clustering, n=10,000 drugs')
+plt.xlim([-4,4])
+plt.ylim([-4,4])
 
