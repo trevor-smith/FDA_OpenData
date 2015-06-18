@@ -12,14 +12,14 @@ import matplotlib.pyplot as plt
 # make sure mongod is running
 client = MongoClient()
 labels = client.drugs.drug_labeling
-events = client.drugs.adverse_events
+events = client.drugs.adverse_events6
+enforcement = client.drugs.enforcement
 
 ### STEP 1: FLATTEN THE DATA ###
 
 """ the data is nested JSON and I'd like to get it tabular so I'm going
 to flatten it with the function I've created below.  This one is extracting
 the data related to the patient and the drugs they have in their system. """
-
 
 def flatten_patients_data():
 
@@ -30,18 +30,19 @@ def flatten_patients_data():
     """ this is how we are going to iterate through the mongodb cursor """
 
     print "here we go............."
-    for i in range(14):
+    for i in range(0,30):
         tracker = i
 
-        """ num and num_1000 are how I am going to iterate through the
+        """ num and num_500 are how I am going to iterate through the
         cursor by taking slices """
 
-        num = i*1000
-        num_1000 = num + 1000
-        cursor_events = events.find({})[num:num_1000]
+        num = i*500
+        num_500 = num + 500
+        cursor_events = events.find({})[num:num_500]
         documents_events = []
-        for j in cursor_events:
-            documents_events.append(j['results'])
+        map(lambda x: documents_events.append(x['results']), cursor_events)
+        # for j in cursor_events:
+        #     documents_events.append(j['results'])
         print "done with documents step: " + str(tracker)
 
         """ there are 100 items stored in each document so now I have to
@@ -49,10 +50,14 @@ def flatten_patients_data():
         document contains 100 items... """
 
         data_events = []
+
         for k in documents_events:
-            for l in k:
-                data_events.append(l)
+            map(lambda x: data_events.append(x), k)
+            # for l in k:
+            #     data_events.append(l)
         print "done with data step: " + str(tracker)
+
+        print len(data_events)
 
         """ now we have to start to flatten out the data.  The data is
         nested JSON so I'm only going to extract the parts that I need.
@@ -63,43 +68,48 @@ def flatten_patients_data():
         test = []
 
         # headers are the headers of the list of lists file
-        headers = ['safetyreportid', 'receivedate', 'country', 'serious', 'transmissiondate', 'actiondrug', 'medicinalproduct', 'drugcharacterization']
+        headers = ['safetyreportid', '@epoch', 'receivedate', 'serious', 'transmissiondate', 'medicinalproduct', 'drugcharacterization']
 
         # the list of our keys that aren't nested
-        first = ['safetyreportid', 'receivedate', 'occurcountry', 'serious', 'transmissiondate']
+        first = ['@epoch', 'receivedate', 'serious', 'transmissiondate']
 
         # the list of the keys that are nested
-        second = ['actiondrug', 'medicinalproduct', 'drugcharacterization']
-        keys = ['medicinalproduct', 'actiondrug', 'drugcharacterization']
+        second = ['medicinalproduct', 'drugcharacterization']
+        keys = ['medicinalproduct', 'drugcharacterization']
         test.append(headers)
 
         """ the goal is to create a list of lists. sometimes a key does
         not exist...if it doesn't, then we skip that row """
 
+        documents_events = []
+
+
+
         for i in data_events:
             for j in i['patient']['drug']:
                 if all (k in j for k in keys):
                     row = []
-                    # this loop appends the items that are not as far nested
-                    # that's why it refers to i
-                    for m in first:
-                        row.append(i[m])
-                    # this loop appends the items that are more nested
-                    # that's why it refers to j
-                    for n in second:
-                        row.append(j[n])
+                    row.append(i['safetyreportid'])
+                    row.extend((i[m] for m in first))
+                    row.extend((j[n] for n in second))
                     test.append(row)
                 else:
                     pass
+        print len(test)
 
         """ now that we have our data flattened out into list of lists
         it is time to save it to a csv file """
 
+        data_events = []
+
         import csv
 
-        with open("patients"+"_"+str(tracker)+".csv", "wb") as f:
+        with open ("patientsv3"+"_"+str(tracker)+".csv", "wb") as f:
             writer = csv.writer(f)
-            writer.writerows(test)
+            try:
+                writer.writerows(test)
+            except:
+                print "data not good..."
         print "done with csv step: " + str(tracker)
 
 flatten_patients_data()
