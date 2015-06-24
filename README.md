@@ -15,13 +15,18 @@ fda_data_entry.py
 
 ### Exploration (section not really necessary, more of me just understanding the data)
 fda_exploratory_data_analysis.py
+
 fda_data_exploration.py
+
 fda_initial_data_analysis.py
 
 ### Cleaning
 fda_adverse_events_cleaning.py
+
 fda_labels_cleaning.py
+
 fda_recalls_cleaning.py
+
 fda_reactions_cleaning.py
 
 ### Topic Modeling
