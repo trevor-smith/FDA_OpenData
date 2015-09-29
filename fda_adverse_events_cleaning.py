@@ -15,11 +15,16 @@ labels = client.drugs.drug_labeling
 events = client.drugs.adverse_events6
 enforcement = client.drugs.enforcement
 
-### STEP 1: FLATTEN THE DATA ###
+### FLATTEN THE DATA ###
 
 """ the data is nested JSON and I'd like to get it tabular so I'm going
 to flatten it with the function I've created below.  This one is extracting
-the data related to the patient and the drugs they have in their system. """
+the data related to the patient and the drugs they have in their system.
+What this function does is creates a new row of data for every single
+patient for every single adverse event.  For example, a person could have
+3 adverse events reported at once and that would be one entry in the JSON...
+however, this format is not useful for data analysis.  What this function does is 
+actually creating three different rows of data for this same person"""
 
 def flatten_patients_data():
 
