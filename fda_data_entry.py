@@ -1,7 +1,6 @@
 # the goal of this is to just run different queries to the FDA API
 # access: https://open.fda.gov/api
 
-# IMPORTS
 import requests
 import json
 import cnfg
